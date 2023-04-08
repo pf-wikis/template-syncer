@@ -1,0 +1,36 @@
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>DENY</onMatch>
+		</filter>
+		<encoder>
+			<pattern>%-5level|%d{HH:mm:ss} %-15.15mdc{book} %logger{1} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+		<target>System.err</target>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<encoder>
+			<pattern>%-5level|%d{HH:mm:ss} %-15.15mdc{book} %logger{1} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<append>false</append>
+		<file>current.log</file>
+		<encoder>
+			<pattern>%-5level|%d{HH:mm:ss} %-25.25mdc{book} %logger{1} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+
+	<logger name="org.apache" level="error" />
+	<root level="debug">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="STDERR" />
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>
