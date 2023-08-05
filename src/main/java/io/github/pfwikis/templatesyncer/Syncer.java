@@ -2,11 +2,13 @@ package io.github.pfwikis.templatesyncer;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.github.fastily.jwiki.core.Wiki;
+import io.github.pfwikis.templatesyncer.PageQuery.Page;
 import okhttp3.HttpUrl;
 
 public class Syncer {
@@ -26,13 +28,18 @@ public class Syncer {
             .build();
 
         var token = apiGET(sf, TokenQuery.class,"query", "format", "json" , "meta", "tokens", "utf8","1","formatversion","2");
-        var pages = apiGET(pf, PageQuery.class, "query", "format", "json", "generator", "categorymembers", "utf8", "1", "formatversion", "2", "gcmtitle", "Category:Synced to starfinderwiki", "gcmprop", "ids", "gcmnamespace", "10|102|274", "gcmlimit", "1000").getPages();
+        var pages = apiGET(pf, PageQuery.class, "query", "format", "json", "generator", "categorymembers", "utf8", "1", "formatversion", "2", "gcmtitle", "Category:Synced to starfinderwiki", "gcmprop", "ids", "gcmnamespace", "10|102|274|828", "gcmlimit", "1000").getPages();
 
+        List<String> titles = pages.stream()
+            .map(Page::getTitle)
+            .map(t->t.endsWith("/doc")?t.substring(0,t.length()-4):t)
+            .distinct()
+            .toList();
 
-        for(var page : pages) {
-            sync(pf, sf, page.getTitle(), token);
+        for(var page : titles) {
+            sync(pf, sf, page, token);
 
-            String doc = page.getTitle()+"/doc";
+            String doc = page+"/doc";
             if(pf.exists(doc)) {
                 sync(pf, sf, doc, token);
             }
@@ -42,10 +49,12 @@ public class Syncer {
     private static void sync(Wiki pf, Wiki sf, String page, TokenQuery token) throws IOException {
         var target = pf.getPageText(page);
         var sfText = sf.getPageText(page);
-        target = "<noinclude><div class=\"banner\">"
-            + "This page is automatically synced from [https://pathfinderwiki.com/wiki/{{FULLPAGENAMEE}} this] pathfinderwiki page. "
-            + "Do not edit it here.</div></noinclude>"
-            + target;
+        if(!page.startsWith("Module:") || page.endsWith("/doc")) {
+            target = "<noinclude><div class=\"banner\">"
+                + "This page is automatically synced from [https://pathfinderwiki.com/wiki/{{FULLPAGENAMEE}} this] pathfinderwiki page. "
+                + "Do not edit it here.</div></noinclude>"
+                + target;
+        }
 
         if(!sfText.equals(target)) {
             sf.edit(page, target, "Autosync from Pathfinderwiki");
