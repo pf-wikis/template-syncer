@@ -28,7 +28,7 @@ public class Syncer {
             .build();
 
         var token = apiGET(sf, TokenQuery.class,"query", "format", "json" , "meta", "tokens", "utf8","1","formatversion","2");
-        var pages = apiGET(pf, PageQuery.class, "query", "format", "json", "generator", "categorymembers", "utf8", "1", "formatversion", "2", "gcmtitle", "Category:Synced to starfinderwiki", "gcmprop", "ids", "gcmnamespace", "10|102|274|828", "gcmlimit", "1000").getPages();
+        var pages = apiGET(pf, PageQuery.class, "query", "format", "json", "generator", "categorymembers", "utf8", "1", "formatversion", "2", "gcmtitle", "Category:Synced to starfinderwiki", "gcmprop", "ids", "gcmnamespace", "10|102|106|274|828", "gcmlimit", "1000").getPages();
 
         List<String> titles = pages.stream()
             .map(Page::getTitle)
